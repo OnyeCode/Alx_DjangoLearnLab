@@ -1,1 +1,1 @@
-Book.objects.all() #<QuerySet [<Book: 1984>]>
+Book.objects.get(id=1) #<QuerySet [<Book: 1984>]>
