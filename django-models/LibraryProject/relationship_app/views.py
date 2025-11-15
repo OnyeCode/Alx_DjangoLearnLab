@@ -9,6 +9,11 @@ from django.views.generic.detail import DetailView   # REQUIRED EXACT LINE
 from .models import Book
 from .models import Library
 
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render
+from .models import UserProfile
+
+
 def list_books(request):
     books = Book.objects.all()
     return render(
@@ -71,4 +76,21 @@ def register(request):
             return redirect("login")
 
     return render(request, "relationship_app/register.html", {"form": form})
+
+
+@user_passes_test(lambda user: hasattr(user, "userprofile") and user.userprofile.role == "Admin")
+def admin_view(request):
+    return render(request, "relationship_app/admin_view.html")
+
+
+@user_passes_test(lambda user: hasattr(user, "userprofile") and user.userprofile.role == "Librarian")
+def librarian_view(request):
+    return render(request, "relationship_app/librarian_view.html")
+
+
+@user_passes_test(lambda user: hasattr(user, "userprofile") and user.userprofile.role == "Member")
+def member_view(request):
+    return render(request, "relationship_app/member_view.html")
+
+
 
