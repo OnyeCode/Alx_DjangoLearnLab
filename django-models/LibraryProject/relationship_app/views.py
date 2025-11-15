@@ -22,6 +22,7 @@ class LibraryDetailView(DetailView):
     template_name = "relationship_app/library_detail.html"
     context_object_name = "library"
 
+'''
 from django.shortcuts import redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
@@ -54,5 +55,20 @@ def register_view(request):
             return redirect("list_books")  # Redirect after registration
     else:
         form = UserCreationForm()
+    return render(request, "relationship_app/register.html", {"form": form})
+'''
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import UserCreationForm
+
+def register(request):
+    form = UserCreationForm()
+
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("login")
+
     return render(request, "relationship_app/register.html", {"form": form})
 
