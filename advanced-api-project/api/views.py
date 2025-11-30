@@ -5,7 +5,13 @@ from django.shortcuts import render
 from rest_framework import generics, permissions
 from .models import Book
 from .serializers import BookSerializer
+
+# Permissions
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+
+# Filtering, searching, ordering
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 
 """
@@ -16,7 +22,21 @@ Uses DRF GenericAPIView + ListAPIView.
 class BookListView(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]  # Read-only access
+    #permission_classes = [permissions.AllowAny]  # Read-only access
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    # DRF filtering/searching/ordering
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
+    # ---- Filtering ----
+    filterset_fields = ['title', 'author', 'publication_year']
+
+    # ---- Searching ----
+    search_fields = ['title', 'author__name']
+
+    # ---- Ordering ----
+    ordering_fields = ['title', 'publication_year']
+    ordering = ['title']   # default ordering
 
 
 """
