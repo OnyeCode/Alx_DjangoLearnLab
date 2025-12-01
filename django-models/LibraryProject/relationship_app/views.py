@@ -5,7 +5,7 @@ from django.shortcuts import render
 #function-based view that lists all books stored in the database.
 #This view should render a simple text list of book titles and their authors.
 
-from .models import Book, Library
+from .models import Book
 
 def list_books(request):
 	context = {'books' : Book.objects.all()}
@@ -16,6 +16,7 @@ def list_books(request):
 #Utilize Django’s ListView or DetailView to structure this class-based view.
 
 from django.views.generic import DetailView
+from .models import Library
 
 class library_detail(DetailView):
 	model = Library
