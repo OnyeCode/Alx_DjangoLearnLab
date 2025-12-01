@@ -1,5 +1,6 @@
 #Query all books by a specific author.
-Book.objects.filter(author=(Author.objects.get(name=author_name)))
+author = Author.objects.get(name=author_name)
+Book.objects.filter(author=author)
 
 
 #List all books in a library.
