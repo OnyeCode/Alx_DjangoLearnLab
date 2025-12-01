@@ -3,7 +3,7 @@ Book.objects.filter(author=Author_name)
 
 
 #List all books in a library.
-Library.objects.get(name=Library_name).books
+Library.objects.get(name=Library_name).books.all()
 
 
 #Retrieve the librarian for a library.
