@@ -15,7 +15,7 @@ def list_books(request):
 #class-based view that displays details for a specific library, listing all books available in that library.
 #Utilize Django’s ListView or DetailView to structure this class-based view.
 
-from django.views.generic import DetailView
+from django.views.generic.detail import DetailView
 from .models import Library
 
 class library_detail(DetailView):
