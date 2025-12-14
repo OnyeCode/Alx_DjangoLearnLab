@@ -3,7 +3,7 @@ from .models import Author, Book
 from timedate import datetime, timezone
 
 #BookSerializer that serializes all fields of the Book model
-class BookSerializer(serialaizers.ModelSerializer):
+class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = "__all__"
