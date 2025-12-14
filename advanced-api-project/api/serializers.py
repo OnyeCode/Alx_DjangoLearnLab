@@ -11,7 +11,7 @@ class BookSerializer(serilaizers.ModelSerializer):
     #Custom validation to the BookSerializer to ensure the publication_year is not in the future
     def validate(self, data):
         if data['pubication_year'] > datetime.now(timezon.utc):
-            raise ValidationError("Publication year cannot be in the future")
+            raise serializers.ValidationError("Publication year cannot be in the future")
         return data
 
 #AuthorSerializer that serializers the 'name' field of the Author model, and also serializers the related books through nested serialization
