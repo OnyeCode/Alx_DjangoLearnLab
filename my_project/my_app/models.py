@@ -30,6 +30,21 @@ class Module(models.Model):
     order = models.PositiveIntegerField()
 
 
+#Enrollment
+class Enrollment(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=[
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled')
+    ])
+    enrolled_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('student', 'subject')
+
+
 
 """
 # Create your models here.
