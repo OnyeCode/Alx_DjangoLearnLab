@@ -45,6 +45,25 @@ class Enrollment(models.Model):
         unique_together = ('student', 'subject')
 
 
+#Lesson
+class Lesson(models.Model):
+    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="lessons")
+    title = models.CharField(max_length=255)
+    content = models.TextField()
+    order = models.PositiveIntegerField()
+
+#Practice
+class Practice(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="practices")
+    title = models.CharField(max_length=255)
+    instructions = models.TextField()
+    practice_type = models.CharField(max_length=20, choices=[
+        ('quiz', 'Quiz'),
+        ('code', 'Code'),
+        ('text', 'Text')
+    ])
+    max_score = models.IntegerField()
+
 
 """
 # Create your models here.
