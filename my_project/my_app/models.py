@@ -65,6 +65,23 @@ class Practice(models.Model):
     max_score = models.IntegerField()
 
 
+#Submission
+class Submission(models.Model):
+    practice = models.ForeignKey(Practice, on_delete=models.CASCADE)
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    score = models.IntegerField(null=True, blank=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+#Progress
+class Progress(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    module = models.ForeignKey(Module, on_delete=models.CASCADE)
+    completed_lessons = models.IntegerField(default=0)
+    progress_percentage = models.FloatField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 """
 # Create your models here.
 
