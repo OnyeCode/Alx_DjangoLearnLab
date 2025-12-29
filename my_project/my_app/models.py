@@ -15,6 +15,21 @@ class StudentProfile(models.Model):
     education_level = models.CharField(max_length=50)
 
 
+#Subject
+class Subject(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    slug = models.SlugField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+#Module
+class Module(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="modules")
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    order = models.PositiveIntegerField()
+
+
 
 """
 # Create your models here.
