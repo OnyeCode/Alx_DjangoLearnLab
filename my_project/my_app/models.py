@@ -1,93 +1,149 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-
-#User (Django’s default)
-class User(AbstractUser):
-    email = models.EmailField(unique=True)
+from django.contrib.auth.models import User
 
 #StudentProfile
 class StudentProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    gender = models.CharField(max_length=10)
-    date_of_birth = models.DateField(null=True, blank=True)
-    phone = models.CharField(max_length=20)
-    country = models.CharField(max_length=50)
-    education_level = models.CharField(max_length=50)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="student_profile"
+    )
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    bio = models.TextField(blank=True)
+    profile_picture = models.ImageField(
+        upload_to="profiles/",
+        blank=True,
+        null=True
+    )
+    date_of_birth = models.DateField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
 
 #Subject
 class Subject(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
-    slug = models.SlugField(unique=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="subjects"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
 
 #Module
 class Module(models.Model):
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="modules")
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.CASCADE,
+        related_name="modules"
+    )
     title = models.CharField(max_length=255)
     description = models.TextField()
     order = models.PositiveIntegerField()
-
-
-#Enrollment
-class Enrollment(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=[
-        ('active', 'Active'),
-        ('completed', 'Completed'),
-        ('cancelled', 'Cancelled')
-    ])
-    enrolled_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('student', 'subject')
+        ordering = ["order"]
 
+    def __str__(self):
+        return f"{self.subject.title} - {self.title}"
 
-#Lesson
-class Lesson(models.Model):
-    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="lessons")
-    title = models.CharField(max_length=255)
-    content = models.TextField()
-    order = models.PositiveIntegerField()
+#Enrollment (Many-to-Many Resolver)
+class Enrollment(models.Model):
+    student = models.ForeignKey(
+        StudentProfile,
+        on_delete=models.CASCADE,
+        related_name="enrollments"
+    )
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.CASCADE,
+        related_name="enrollments"
+    )
+    enrolled_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ("active", "Active"),
+            ("completed", "Completed"),
+            ("dropped", "Dropped"),
+        ],
+        default="active"
+    )
 
-#Practice
-class Practice(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="practices")
-    title = models.CharField(max_length=255)
-    instructions = models.TextField()
-    practice_type = models.CharField(max_length=20, choices=[
-        ('quiz', 'Quiz'),
-        ('code', 'Code'),
-        ('text', 'Text')
-    ])
-    max_score = models.IntegerField()
+    class Meta:
+        unique_together = ("student", "subject")
 
+    def __str__(self):
+        return f"{self.student} enrolled in {self.subject}"
 
-#Submission
-class Submission(models.Model):
-    practice = models.ForeignKey(Practice, on_delete=models.CASCADE)
-    student = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField()
-    score = models.IntegerField(null=True, blank=True)
+#PracticeQuestion
+class PracticeQuestion(models.Model):
+    QUESTION_TYPES = [
+        ("mcq", "Multiple Choice"),
+        ("text", "Text"),
+    ]
+
+    module = models.ForeignKey(
+        Module,
+        on_delete=models.CASCADE,
+        related_name="questions"
+    )
+    question_text = models.TextField()
+    question_type = models.CharField(
+        max_length=10,
+        choices=QUESTION_TYPES
+    )
+    correct_answer = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Question in {self.module.title}"
+
+#PracticeSubmission
+class PracticeSubmission(models.Model):
+    student = models.ForeignKey(
+        StudentProfile,
+        on_delete=models.CASCADE,
+        related_name="submissions"
+    )
+    question = models.ForeignKey(
+        PracticeQuestion,
+        on_delete=models.CASCADE,
+        related_name="submissions"
+    )
+    submitted_answer = models.TextField()
+    is_correct = models.BooleanField(default=False)
     submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Submission by {self.student}"
 
 #Progress
 class Progress(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE)
-    module = models.ForeignKey(Module, on_delete=models.CASCADE)
-    completed_lessons = models.IntegerField(default=0)
-    progress_percentage = models.FloatField(default=0)
-    updated_at = models.DateTimeField(auto_now=True)
+    student = models.ForeignKey(
+        StudentProfile,
+        on_delete=models.CASCADE,
+        related_name="progress"
+    )
+    module = models.ForeignKey(
+        Module,
+        on_delete=models.CASCADE,
+        related_name="progress"
+    )
+    completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(blank=True, null=True)
 
+    class Meta:
+        unique_together = ("student", "module")
 
-"""
-# Create your models here.
+    def __str__(self):
+        return f"{self.student} - {self.module}"
 
-class Book(models.Model):
-    title = models.CharField(max_length=200)
-    author = models.CharField(max_length=100)
-    published_date = models.DateField()
-
-'''
