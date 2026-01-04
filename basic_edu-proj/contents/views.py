@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, generics, views
 from rest_framework.permissions import IsAuthenticated
 from .models import *
 from .serializers import *
@@ -43,4 +43,38 @@ class ProgressViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def subjects_page(request):
+    return render(request, "contents/subjects.html")
+
+
+class SubjectListView(views.APIView):
+    def get(self, request):
+        subjects = Subject.objects.all()
+        serializer = SubjectSerializer(subjects, many=True)
+        return Response(serializer.data)
+
+class PracticeListView(views.APIView):
+    def get(self, request):
+        module_id = request.query_params.get("module_id")
+        questions = PracticeQuestion.objects.filter(module_id=module_id)
+        serializer = PracticeQuestionSerializer(questions, many=True)
+        return Response(serializer.data)
+
+class SubmitPracticeView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        PracticeSubmission.objects.create(
+            student=request.user,
+            data=request.data
+        )
+        return Response({"message": "Submitted"})
+
 

@@ -16,3 +16,25 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         return user
 
+
+
+from .models import StudentProfile
+
+
+class StudentProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
+
+    class Meta:
+        model = StudentProfile
+        fields = [
+            'id',
+            'username',
+            'email',
+            'bio',
+            'phone',
+            'level',
+            'created_at'
+        ]
+        read_only_fields = ["user"]
+

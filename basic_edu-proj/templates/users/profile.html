@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<h2>My Profile</h2>
+
+<div id="profileDisplay">
+  <p><strong>Username:</strong> <span id="username"></span></p>
+  <p><strong>Email:</strong> <span id="email"></span></p>
+</div>
+
+<h3>Edit Profile</h3>
+<input id="first_name">
+<input id="last_name">
+<button onclick="updateProfile()">Save</button>
+
+<script src="/static/js/profile.js"></script>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/profile.js"></script>
+{% endblock %}
+

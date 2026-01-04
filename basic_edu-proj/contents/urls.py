@@ -11,3 +11,13 @@ router.register('progress', ProgressViewSet)
 
 urlpatterns = router.urls
 
+
+from django.urls import path
+from .views import (
+    subjects_page,
+)
+
+urlpatterns = [
+    path("subjects/", subjects_page, name="subjects"),
+]
+
